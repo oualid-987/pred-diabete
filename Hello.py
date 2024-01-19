@@ -1,51 +1,36 @@
-# Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import streamlit as st
-from streamlit.logger import get_logger
+import numpy as np
+import pickle
 
-LOGGER = get_logger(__name__)
+# Charger le modèle pré-entrainé depuis le fichier .sav
+loaded_model = pickle.load(open('/workspaces/pred-diabete/model/trained_model.sav', 'rb'))
 
+# Interface Streamlit
+st.title("Prédiction du Diabète")
 
-def run():
-    st.set_page_config(
-        page_title="Hello",
-        page_icon="👋",
-    )
+# Sections pour les caractéristiques
+st.header("Informations sur la personne")
 
-    st.write("# Welcome to Streamlit! 👋")
+# Utilisateur saisit les informations
+pregnancies = st.slider("Nombre de grossesses", 0, 10, 1)
+glucose = st.slider("Niveau de glucose", 0, 200, 100)
+blood_pressure = st.slider("Pression sanguine", 0, 150, 75)
+skin_thickness = st.slider("Épaisseur de la peau", 0, 50, 20)
+insulin = st.slider("Niveau d'insuline", 0, 300, 150)
+bmi = st.slider("Indice de masse corporelle (BMI)", 0.0, 50.0, 25.0)
+dpf = st.slider("Fonction de pedigree du diabète", 0.0, 2.0, 1.0)
+age = st.slider("Âge de la personne", 20, 80, 40)
 
-    st.sidebar.success("Select a demo above.")
+# Bouton pour effectuer la prédiction
+if st.button("Prédire"):
+    # Créer un tableau numpy avec les informations saisies
+    input_data = np.array([pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age]).reshape(1, -1)
 
-    st.markdown(
-        """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
+    # Effectuer la prédiction avec le modèle
+    prediction = loaded_model.predict(input_data)
 
-
-if __name__ == "__main__":
-    run()
+    # Afficher le résultat
+    if prediction[0] == 0:
+        st.success('La personne n\'est pas diabétique.')
+    else:
+        st.error('La personne est diabétique.')
