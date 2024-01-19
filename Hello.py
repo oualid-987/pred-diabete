@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 
 # Charger le modèle pré-entrainé depuis le fichier .sav
-loaded_model = pickle.load(open('/workspaces/pred-diabete/model/trained_model.sav', 'rb'))
+loaded_model = pickle.load(open('/workspaces/pred-diabete/trained_model.sav', 'rb'))
 
 # Interface Streamlit
 st.title("Prédiction du Diabète")
